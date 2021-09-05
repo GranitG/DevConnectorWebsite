@@ -1,14 +1,10 @@
 const express = require('express');
-const router  = express.Router();
-
-
-
+const router = express.Router();
 
 // @route       GET api/posts
 // @desc        Test route
 // @access      Public
 
+router.get('/', (req, res) => res.send('posts router'));
 
-router.get('/',(req,res) => res.send('posts router'));
-
-module.exports = router;    
+module.exports = router;
