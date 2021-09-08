@@ -201,15 +201,12 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
 		//remove profile experience
 		const profile = await Profile.findOne({ user: req.user.id });
 
-		const removeIndex = profile.experience
-			.map((item) => item.id)
-			.indexOf(req.params.exp_id);
-
-		profile.experience.splice(removeIndex, 1);
+		profile.experience = profile.experience.filter(
+			(exp) => exp._id.toString() !== req.params.exp_id,
+		);
 
 		await profile.save();
-
-		res.json(profile);
+		return res.status(200).json(profile);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server Error');
@@ -266,18 +263,13 @@ router.put(
 
 router.delete('/education/:edu_id', auth, async (req, res) => {
 	try {
-		//remove profile experience
+		//remove profile education
 		const profile = await Profile.findOne({ user: req.user.id });
-
-		const removeIndex = profile.education
-			.map((item) => item.id)
-			.indexOf(req.params.exp_id);
-
-		profile.education.splice(removeIndex, 1);
-
+		profile.education = profile.education.filter(
+			(edu) => edu._id.toString() !== req.params.edu_id,
+		);
 		await profile.save();
-
-		res.json(profile);
+		return res.status(200).json(profile);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server Error');
