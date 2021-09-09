@@ -3,17 +3,17 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
 const Post = require('../../models/Posts');
-const Users = require('../../models/User');
-const Profile = require('../../models/Profile');
 const User = require('../../models/User');
+const Profile = require('../../models/Profile');
+
 // @route       Post api/posts
 // @desc        Create a post
 // @access      Public
 
 router.post(
 	'/',
-	[auth],
-	[check('text', 'Text is required').not().isEmpty()],
+	auth,
+	check('text', 'Text is required').notEmpty(),
 	async (req, res) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -99,6 +99,30 @@ router.delete('/:id', auth, async (req, res) => {
 		if (err.kind === 'ObjectId') {
 			return res.status(404).json({ msg: 'Post not found' });
 		}
+		res.status(500).send('Server Error');
+	}
+});
+
+// @route       PUT api/posts/like/:id
+// @desc        Likes a post
+// @access      Private
+
+router.put('/like/:id', auth, async (req, res) => {
+	try {
+		const post = await Post.findById(req.params.id);
+
+		// Check if the post has already been liked
+		if (post.likes.some((like) => like.user.toString() === req.user.id)) {
+			return res.status(400).json({ msg: 'Post already liked' });
+		}
+
+		post.likes.unshift({ user: req.user.id });
+
+		await post.save();
+
+		return res.json(post);
+	} catch (err) {
+		console.error(err.message);
 		res.status(500).send('Server Error');
 	}
 });
